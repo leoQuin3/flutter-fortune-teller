@@ -70,12 +70,40 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         shape: ShapeBorder.lerp(CircleBorder(), StadiumBorder(), 0.5),
-        onPressed: () =>
-            Snackbar.show(SnackbarDisplayType.SB_INFO, 'You clicked the floating button on the home screen!', context),
+        onPressed: () => Snackbar.show(SnackbarDisplayType.SB_INFO,
+            'You clicked the floating button on the home screen!', context),
         splashColor: Theme.of(context).primaryColor,
         child: Icon(FontAwesomeIcons.plus),
       ),
-      body: Text('Home'),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // ************
+            // Genie Avatar
+            // ************
+            CircleAvatar(
+              backgroundColor: Colors.indigoAccent,
+              radius: 100,
+            ),
+            SizedBox(height: 75),
+
+            // ***************
+            // Tell a fortune
+            // ***************
+            ElevatedButton(
+              child: Text(
+                'Tell me a fortune.',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
