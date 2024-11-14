@@ -18,6 +18,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:http/http.dart' as http;
 
 // App relative file imports
 import '../../util/message_display/snackbar.dart';
@@ -37,47 +38,46 @@ class ScreenHome extends ConsumerStatefulWidget {
 //////////////////////////////////////////////////////////////////////////
 class _ScreenHomeState extends ConsumerState<ScreenHome> {
   // The "instance variables" managed in this state
+  late GenerativeModel model;
   bool _isInit = true;
   bool _isGenerating = false;
   String? generatedText = null;
+  final GEMINI_API_KEY = const String.fromEnvironment('GEMINI_API');
 
-  // Generate a fortune by calling Gemini to generate text
+  // ************************************
+  // Request Gemini to generate fortune
+  // ************************************
   void generateFortune() async {
-    // Call gemini
-    final GEMINI_API_KEY = const String.fromEnvironment('GEMINI_API');
-
-    print('Gemini\'s API: $GEMINI_API_KEY');
+    // Check if API key provided
     if (GEMINI_API_KEY == null) {
       print('API key for Gemini AI not provided.');
       return;
     }
 
+    // Update UI to "loading" state
     setState(() {
       _isGenerating = true;
     });
 
-    // Define model
-    final model = GenerativeModel(
-      model: 'gemini-1.5-pro',
-      apiKey: GEMINI_API_KEY,
-    );
+    try {
+      // Request fortune
+      final response = await model.generateContent(
+        [Content.text('Tell me a fortune')],
+      );
 
-    // Request fortune
-    final prompt =
-        '''You are a genie who tells a fortune to the user. Read a fortune to 
-        the user and state a specific prediction. The prediction is either a 
-        fortune of good luck or bad luck. Fortunes of good luck predicts 
-        desirable events that will happen to the user. Fortunes of bad luck 
-        predicts a comedic minor inconvenience that will befall on the user. 
-        A fortune must be no more than two sentences long, and must be 
-        detailed. Bad fortunes should not be dangerous, life threatening, 
-        nor obscene, and must be light-hearted.''';
-    final response = await model.generateContent([Content.text(prompt)]);
-
-    setState(() {
-      generatedText = response.text;
-      _isGenerating = false;
-    });
+      // Update UI with new response
+      setState(() {
+        generatedText = response.text;
+        _isGenerating = false;
+      });
+    } catch (err) {
+      // Prompt error
+      print(err);
+      setState(() {
+        generatedText = 'An error has occurred. Please tap again.';
+        _isGenerating = false;
+      });
+    }
   }
 
   ////////////////////////////////////////////////////////////////
@@ -96,6 +96,35 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
   @override
   void initState() {
     super.initState();
+
+    // Define model
+    model = GenerativeModel(
+      model: 'gemini-1.5-flash',
+      apiKey: GEMINI_API_KEY,
+      generationConfig: GenerationConfig(
+        temperature: 2,
+        topK: 20,
+        // topP: 0.9,
+        maxOutputTokens: 8192,
+        responseMimeType: 'text/plain',
+      ),
+      // safetySettings: [
+      //   SafetySetting(
+      //     HarmCategory.dangerousContent,
+      //     HarmBlockThreshold.none,
+      //   ),
+      //   SafetySetting(
+      //     HarmCategory.sexuallyExplicit,
+      //     HarmBlockThreshold.medium,
+      //   ),
+      //   SafetySetting(
+      //     HarmCategory.harassment,
+      //     HarmBlockThreshold.low,
+      //   ),
+      // ],
+      systemInstruction: Content.system(
+          'You are a genie who tells a fortune to the user. Read a unique fortune to the user and state a prediction. The prediction is either a fortune of good luck, which predicts desirable outcomes that will happen to the user, and fortunes of bad luck predicts a comedic minor inconvenience that will befall on the user. A fortune must be no more than two sentences long, and must be descriptive and silly. Bad fortunes should not be dangerous, life threatening, nor obscene, and must be light-hearted. Try to be unique and not repeat yourself.'),
+    );
   }
 
   ////////////////////////////////////////////////////////////////
@@ -166,7 +195,7 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
                 'Tell me a fortune.',
                 style: TextStyle(color: Colors.white),
               ),
-              onPressed: generateFortune,
+              onPressed: !_isGenerating ? generateFortune : () {},
               style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
             ),
           ],
