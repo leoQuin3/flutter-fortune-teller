@@ -22,7 +22,7 @@ import 'screens/general/screen_alternate.dart';
 import 'screens/general/screen_home.dart';
 import 'widgets/navigation/widget_primary_scaffold.dart';
 import 'screens/auth/screen_login_validation.dart';
-import 'screens/settings/screen_profile_edit.dart';
+// import 'screens/settings/screen_profile_edit.dart';
 import 'providers/provider_user_profile.dart';
 import 'screens/settings/screen_settings.dart';
 import 'providers/provider_auth.dart';
@@ -30,6 +30,9 @@ import 'providers/provider_tts.dart';
 import 'util/file/util_file.dart';
 import 'firebase_options.dart';
 import 'theme/theme.dart';
+
+// Custom file imports
+import 'package:csc322_starter_app/screens/general/profile_page.dart';
 
 //////////////////////////////////////////////////////////////////////////
 // Providers
@@ -96,27 +99,34 @@ class _MyAppState extends State<MyApp> {
   final GoRouter _router = GoRouter(
     initialLocation: ScreenLoginValidation.routeName,
     routes: [
+      // Login
       GoRoute(
         path: ScreenLoginValidation.routeName,
         builder: (context, state) => const ScreenLoginValidation(),
       ),
+      // Settings
       GoRoute(
         path: ScreenSettings.routeName,
         builder: (context, state) => ScreenSettings(),
       ),
+      // Profile Page
       GoRoute(
-        path: ScreenProfileEdit.routeName,
-        builder: (context, state) => const ScreenProfileEdit(),
+        path: ProfilePage.routeName,
+        builder: (context, state) => const ProfilePage(),
       ),
+      // Main Scaffold
       GoRoute(
         path: WidgetPrimaryScaffold.routeName,
         builder: (BuildContext context, GoRouterState state) =>
             const WidgetPrimaryScaffold(),
       ),
+      // Main Screen
       GoRoute(
         path: ScreenHome.routeName,
         builder: (BuildContext context, GoRouterState state) => ScreenHome(),
       ),
+      // Saved Fortunes
+      // TODO: Create Saved Fortunes screen and put them here.
       GoRoute(
         path: ScreenAlternate.routeName,
         builder: (BuildContext context, GoRouterState state) =>

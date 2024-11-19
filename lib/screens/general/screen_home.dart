@@ -12,16 +12,20 @@
 
 // Flutter imports
 import 'dart:async';
+import 'dart:math';
 
 // Flutter external package imports
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:http/http.dart' as http;
 
 // App relative file imports
 import '../../util/message_display/snackbar.dart';
+
+// Custom file imports
+import 'package:csc322_starter_app/screens/general/profile_page.dart';
+import 'package:csc322_starter_app/widgets/general/bottom_nav_bar.dart';
 
 //////////////////////////////////////////////////////////////////////////
 // StateFUL widget which manages state. Simply initializes the state object.
@@ -99,7 +103,7 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
 
     // Define model
     model = GenerativeModel(
-      model: 'gemini-1.5-flash',
+      model: 'gemini-1.5-pro',
       apiKey: GEMINI_API_KEY,
       generationConfig: GenerationConfig(
         temperature: 2,
