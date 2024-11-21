@@ -27,15 +27,10 @@ import 'package:csc322_starter_app/screens/general/profile_page.dart';
 
 enum BottomNavSelection { HOME_SCREEN, ALTERNATE_SCREEN }
 
-//////////////////////////////////////////////////////////////////
-// StateLESS widget which only has data that is initialized when
-// widget is created (cannot update except when re-created).
-//////////////////////////////////////////////////////////////////
+// ********************************************
+// Drawer which provides access app settings
+// ********************************************
 class WidgetAppDrawer extends StatelessWidget {
-  ////////////////////////////////////////////////////////////////
-  // Primary Flutter method overriden which describes the layout
-  // and bindings for this widget.
-  ////////////////////////////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -63,13 +58,6 @@ class WidgetAppDrawer extends StatelessWidget {
                 // ,
                 automaticallyImplyLeading: false,
               ),
-              // Divider(),
-              // ListTile(
-              //   leading: Icon(Icons.home),
-              //   title: Text('Home'),
-              //   onTap: () {},
-              // ),
-              // Divider(),
               ListTile(
                 leading: Icon(Icons.spatial_audio_off),
                 title: Text('Voice Settings'),

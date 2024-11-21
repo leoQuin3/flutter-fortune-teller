@@ -194,6 +194,7 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
             // ***************
             // Tell a fortune
             // ***************
+            // FIXME: Fortune gets erased when switching out of screen. Maybe use providers to store previous fortune
             ElevatedButton(
               child: Text(
                 'Tell me a fortune.',

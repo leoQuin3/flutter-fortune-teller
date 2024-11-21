@@ -126,7 +126,6 @@ class _MyAppState extends State<MyApp> {
         builder: (BuildContext context, GoRouterState state) => ScreenHome(),
       ),
       // Saved Fortunes
-      // TODO: Create Saved Fortunes screen and put them here.
       GoRoute(
         path: ScreenAlternate.routeName,
         builder: (BuildContext context, GoRouterState state) =>

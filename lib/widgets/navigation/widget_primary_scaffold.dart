@@ -52,7 +52,6 @@ class WidgetPrimaryScaffold extends ConsumerStatefulWidget {
 class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
   // The "instance variables" managed in this state
   var _isInit = true;
-  // int _currentTabIndex = 0;
   late Image shareImageFocus;
   late Image shareImageLightUnfocused;
   late Image shareImageDarkUnfocused;
@@ -132,8 +131,10 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
   // screen to display.
   ////////////////////////////////////////////////////////////////
   Widget _getScreenToDisplay(int currentTabIndex) {
+    // Show main screen
     if (currentTabIndex == BottomNavSelection.HOME_SCREEN.index)
       return ScreenHome();
+    // Show saved fortunes
     else if (currentTabIndex == BottomNavSelection.ALTERNATE_SCREEN.index)
       return ScreenAlternate();
     else
@@ -148,7 +149,7 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
     if (currentTabIndex == BottomNavSelection.HOME_SCREEN.index)
       return Text("Home");
     else
-      return Text("Alternate");
+      return Text("Saved Fortunes");
   }
 
   ////////////////////////////////////////////////////////////////
