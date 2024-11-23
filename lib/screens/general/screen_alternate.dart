@@ -14,6 +14,7 @@
 import 'dart:async';
 
 // Flutter external package imports
+import 'package:csc322_starter_app/main.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -71,34 +72,9 @@ class _ScreenAlternateState extends ConsumerState<ScreenAlternate> {
   @override
   Widget build(BuildContext context) {
     //DEBUG: Test list. Replace with list with Fortune objects pulled from database
-    var fortuneList = [
-      Fortune(
-        text:
-            'The stars align in your favor. Expect to find a 100 dollar bill on your way to work!',
-        type: FortuneType.GOOD_LUCK,
-      ),
-      Fortune(
-        text:
-            'Mischief will befall on you. A horde of squirrels will ruin your date by unleashing their acorns!',
-        type: FortuneType.BAD_LUCK,
-      ),
-      Fortune(
-        text:
-            'I sense a frequency of good fortune. You will land a job and excel at your career!',
-        type: FortuneType.BAD_LUCK,
-      ),
-    ];
+    var fortuneList = ref.watch(providerFortunes).fortuneList;
 
     return Scaffold(
-      // TODO: Remove action button
-      // floatingActionButton: FloatingActionButton(
-      //   shape: ShapeBorder.lerp(CircleBorder(), StadiumBorder(), 0.5),
-      //   onPressed: () => Snackbar.show(
-      //       SnackbarDisplayType.SB_INFO, 'You clicked the floating button on the alternate screen!', context),
-      //   splashColor: Theme.of(context).primaryColor,
-      //   child: Icon(FontAwesomeIcons.plus),
-      // ),
-
       // ****************************************************
       // Show list of all fortunes saved to and from database
       // ****************************************************
@@ -107,11 +83,11 @@ class _ScreenAlternateState extends ConsumerState<ScreenAlternate> {
           itemCount: fortuneList.length,
           itemBuilder: (context, index) => Column(
             children: [
+              SizedBox(height: 15),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: FortuneListItem(text: fortuneList[index].text),
+                padding: const EdgeInsets.symmetric(horizontal: 25),
               ),
-              SizedBox(height: 15)
             ],
           ),
         ),

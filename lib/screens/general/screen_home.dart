@@ -15,6 +15,8 @@ import 'dart:async';
 import 'dart:math';
 
 // Flutter external package imports
+import 'package:csc322_starter_app/main.dart';
+import 'package:csc322_starter_app/models/fortune.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -41,12 +43,13 @@ class ScreenHome extends ConsumerStatefulWidget {
 // The actual STATE which is managed by the above widget.
 //////////////////////////////////////////////////////////////////////////
 class _ScreenHomeState extends ConsumerState<ScreenHome> {
-  // The "instance variables" managed in this state
+  final GEMINI_API_KEY = const String.fromEnvironment('GEMINI_API');
   late GenerativeModel model;
+  FortuneType? fortuneType;
+  String? generatedText;
   bool _isInit = true;
   bool _isGenerating = false;
-  String? generatedText = null;
-  final GEMINI_API_KEY = const String.fromEnvironment('GEMINI_API');
+  bool _hasErrorOccurred = false;
 
   // ************************************
   // Request Gemini to generate fortune
@@ -76,7 +79,7 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
       });
     } catch (err) {
       // Prompt error
-      print(err);
+      print('ERROR: $err');
       setState(() {
         generatedText = 'An error has occurred. Please tap again.';
         _isGenerating = false;
@@ -107,27 +110,13 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
       apiKey: GEMINI_API_KEY,
       generationConfig: GenerationConfig(
         temperature: 2,
-        topK: 20,
+        topK: 40,
         // topP: 0.9,
         maxOutputTokens: 8192,
         responseMimeType: 'text/plain',
       ),
-      // safetySettings: [
-      //   SafetySetting(
-      //     HarmCategory.dangerousContent,
-      //     HarmBlockThreshold.none,
-      //   ),
-      //   SafetySetting(
-      //     HarmCategory.sexuallyExplicit,
-      //     HarmBlockThreshold.medium,
-      //   ),
-      //   SafetySetting(
-      //     HarmCategory.harassment,
-      //     HarmBlockThreshold.low,
-      //   ),
-      // ],
       systemInstruction: Content.system(
-          'You are a genie who tells a fortune to the user. Read a unique fortune to the user and state a prediction. The prediction is either a fortune of good luck, which predicts desirable outcomes that will happen to the user, and fortunes of bad luck predicts a comedic minor inconvenience that will befall on the user. A fortune must be no more than two sentences long, and must be descriptive and silly. Bad fortunes should not be dangerous, life threatening, nor obscene, and must be light-hearted. Try to be unique and not repeat yourself.'),
+          'You are a genie who tells a fortune to the user. Create a unique fortune to the user with a prediction. The prediction can be good luck, which predicts desirable outcomes that will happen to the user. Or, the prediction can be a fortune of bad luck, a silly minor inconvenience. A fortune must be simple and be no more than two sentences long. Bad fortunes should not be dangerous or life threatening. Right after the last sentence, write either \"GOOD\" if the prediction is good luck, or \"BAD\" if the prediction is bad luck.'),
     );
   }
 
@@ -145,8 +134,70 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         shape: ShapeBorder.lerp(CircleBorder(), StadiumBorder(), 0.5),
-        onPressed: () => Snackbar.show(SnackbarDisplayType.SB_INFO,
-            'You clicked the floating button on the home screen!', context),
+
+        // ****************************
+        // Save fortune to profile
+        // ****************************
+        onPressed: () async {
+          // Cancel if waiting for fortune, an error occurs, or no fortune is generated.
+          if (_isGenerating || _hasErrorOccurred || generatedText == null) {
+            return;
+          }
+
+          // Get type from generated fortune
+          String generatedFortuneType = generatedText!
+              .substring(
+                  generatedText!.lastIndexOf(' ') + 1, generatedText!.length)
+              .trim()
+              .toUpperCase();
+          print(generatedFortuneType);
+
+          // Assign type to fortune
+          if (generatedFortuneType == 'BAD') {
+            fortuneType = FortuneType.BAD_LUCK;
+          } else {
+            fortuneType = FortuneType.GOOD_LUCK;
+          }
+
+          // Indicate with loading overlay
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext dialogContext) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Saving fortune...',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                  SizedBox(height: 16),
+                  CircularProgressIndicator(color: Colors.white),
+                ],
+              ),
+            ),
+          );
+
+          // Save fortune to profile
+          bool _isSuccessfullySaved = await ref
+              .read(providerFortunes)
+              .addFortune(text: generatedText!, type: fortuneType!);
+
+          // Prompt save success
+          if (!_isSuccessfullySaved) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('There was an error saving the fortune.')));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Fortune was saved successfully.')));
+          }
+
+          // Remove loading indicator
+          Navigator.of(context, rootNavigator: true).pop();
+        },
+
         splashColor: Theme.of(context).primaryColor,
         child: Icon(FontAwesomeIcons.plus),
       ),

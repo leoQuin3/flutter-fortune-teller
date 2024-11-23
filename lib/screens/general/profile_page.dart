@@ -1,6 +1,7 @@
 import 'dart:typed_data';
-import 'package:csc322_starter_app/screens/general/screen_home.dart';
-import 'package:csc322_starter_app/widgets/general/bottom_nav_bar.dart';
+// import 'package:csc322_starter_app/screens/general/screen_home.dart';
+// import 'package:csc322_starter_app/widgets/general/bottom_nav_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,6 +29,57 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       userEmail = user?.email;
     });
+  }
+
+  //Fetch username from Firebase Firestore
+  Future<void> _fetchUsername(String uid) async {
+    final userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    if (userDoc.exists && userDoc.data() != null) {
+      setState(() {
+        username = userDoc.data()!['username'] as String?;
+      });
+    } else {
+      _promptForUsername(uid);
+    }
+  }
+
+//Will ask the user for their username if they don't have one already
+  Future<void> _promptForUsername(String uid) async {
+    final TextEditingController usernameController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Set Your Username'),
+          content: TextField(
+            controller: usernameController,
+            decoration: const InputDecoration(hintText: 'Enter your username'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                final enteredUsername = usernameController.text.trim();
+                if (enteredUsername.isNotEmpty) {
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(uid)
+                      .set({
+                    'username': enteredUsername,
+                  });
+                  setState(() {
+                    username = enteredUsername;
+                  });
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Profile image picker function
@@ -101,13 +153,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   // Display the entered username or "No username" if none entered
                   Text(
                     username ??
-                        'No username provided', // Show username or placeholder
+                        'No Username Provided', // Show username or placeholder
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
                   // Display the email (if available) from FirebaseAuth
                   Text(
-                    userEmail ?? 'No email found',
+                    userEmail ?? 'No Email Found',
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 ],
