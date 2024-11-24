@@ -81,10 +81,34 @@ class _ScreenAlternateState extends ConsumerState<ScreenAlternate> {
         itemCount: fortuneList.length,
         itemBuilder: (context, index) => Column(
           children: [
-            SizedBox(height: 15),
+            SizedBox(height: 10),
             Padding(
-              child: FortuneListItem(text: fortuneList[index].text, type: fortuneList[index].type,),
-              padding: const EdgeInsets.symmetric(horizontal: 25),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Dismissible(
+                key: Key(fortuneList[index].id),
+                direction: DismissDirection.endToStart,
+                child: FortuneListItem(
+                  text: fortuneList[index].text,
+                  type: fortuneList[index].type,
+                ),
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: EdgeInsets.only(right: 20),
+                  color: Colors.red,
+                  child: Icon(Icons.delete, color: Colors.white),
+                ),
+                onDismissed: (direction) {
+                  ref
+                      .read(providerFortunes.notifier)
+                      .removeFortune(fortuneList[index].id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Fortune deleted.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),

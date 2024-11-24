@@ -27,6 +27,12 @@ class ProviderFortunes extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Remove fortune from list
+  void removeFortune(String id) {
+    _fortuneList.removeWhere((element) => element.id == id);
+    notifyListeners();
+  }
+
   // Save fortune to profile
   Future<bool> saveFortuneToProfile(Fortune newFortune, String userId) async {
     try {

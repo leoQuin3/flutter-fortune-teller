@@ -21,7 +21,6 @@ class FortuneListItem extends ListTile {
       tileColor: type == FortuneType.BAD_LUCK
           ? Colors.red.shade700
           : Colors.greenAccent.shade700,
-      contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 8),
       shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(6)),
     );
   }
