@@ -19,10 +19,10 @@ import 'package:csc322_starter_app/theme/colors.dart';
 final ThemeData lightTheme = ThemeData(
   colorScheme: ColorScheme(
     // primary: Color(0xFF7FBDDC),
-    primary: Color(0xFF022A3A),
+    primary: Colors.indigo[400]!,
     onPrimary: Color(0xFFFFFFFF),
     // onPrimary: Color(0xFF022A3A),
-    secondary: Color(0xFF022A3A),
+    secondary: Color.fromARGB(255, 219, 11, 208),
     onSecondary: Color(0xFFFFFFFF),
     surface: CustomColors.offWhite,
     error: Color(0xFFCC0000),

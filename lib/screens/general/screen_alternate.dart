@@ -71,8 +71,7 @@ class _ScreenAlternateState extends ConsumerState<ScreenAlternate> {
   //////////////////////////////////////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
-    //DEBUG: Test list. Replace with list with Fortune objects pulled from database
-    var fortuneList = ref.watch(providerFortunes).fortuneList;
+    var fortuneList = ref.watch(providerFortunes).fortunes;
 
     return Scaffold(
       // ****************************************************
@@ -85,7 +84,7 @@ class _ScreenAlternateState extends ConsumerState<ScreenAlternate> {
             children: [
               SizedBox(height: 15),
               Padding(
-                child: FortuneListItem(text: fortuneList[index].text),
+                child: FortuneListItem(text: fortuneList[index].text, type: fortuneList[index].type,),
                 padding: const EdgeInsets.symmetric(horizontal: 25),
               ),
             ],

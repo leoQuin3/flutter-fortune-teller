@@ -12,7 +12,6 @@
 
 // Flutter imports
 import 'dart:async';
-import 'dart:math';
 
 // Flutter external package imports
 import 'package:csc322_starter_app/main.dart';
@@ -45,11 +44,11 @@ class ScreenHome extends ConsumerStatefulWidget {
 class _ScreenHomeState extends ConsumerState<ScreenHome> {
   final GEMINI_API_KEY = const String.fromEnvironment('GEMINI_API');
   late GenerativeModel model;
-  FortuneType? fortuneType;
-  String? generatedText;
   bool _isInit = true;
   bool _isGenerating = false;
   bool _hasErrorOccurred = false;
+  Fortune? fortune;
+  String? generatedText;
 
   // ************************************
   // Request Gemini to generate fortune
@@ -71,17 +70,22 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
       final response = await model.generateContent(
         [Content.text('Tell me a fortune')],
       );
+      if (response.text == null) {
+        return;
+      }
 
-      // Update UI with new response
+      // Set UI state to "loading"
       setState(() {
-        generatedText = response.text;
         _isGenerating = false;
+        generatedText = response.text;
       });
-    } catch (err) {
-      // Prompt error
+    }
+
+    // Prompt error
+    catch (err) {
       print('ERROR: $err');
       setState(() {
-        generatedText = 'An error has occurred. Please tap again.';
+        _hasErrorOccurred = true;
         _isGenerating = false;
       });
     }
@@ -106,7 +110,7 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
 
     // Define model
     model = GenerativeModel(
-      model: 'gemini-1.5-pro',
+      model: 'gemini-1.5-flash',
       apiKey: GEMINI_API_KEY,
       generationConfig: GenerationConfig(
         temperature: 2,
@@ -130,7 +134,6 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
   //////////////////////////////////////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
-    // Return the scaffold
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         shape: ShapeBorder.lerp(CircleBorder(), StadiumBorder(), 0.5),
@@ -139,30 +142,24 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
         // Save fortune to profile
         // ****************************
         onPressed: () async {
-          // Cancel if waiting for fortune, an error occurs, or no fortune is generated.
-          if (_isGenerating || _hasErrorOccurred || generatedText == null) {
+          // Cancel if waiting for fortune or no fortune is generated
+          if (_isGenerating ||
+              generatedText == null ||
+              generatedText!.isEmpty) {
             return;
           }
 
-          // Get type from generated fortune
-          String generatedFortuneType = generatedText!
-              .substring(
-                  generatedText!.lastIndexOf(' ') + 1, generatedText!.length)
-              .trim()
-              .toUpperCase();
-          print(generatedFortuneType);
-
-          // Assign type to fortune
-          if (generatedFortuneType == 'BAD') {
-            fortuneType = FortuneType.BAD_LUCK;
-          } else {
-            fortuneType = FortuneType.GOOD_LUCK;
+          // Cancel if an error has occurred 
+          if (_hasErrorOccurred) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('There was an error saving a fortune.')));
+            return;
           }
 
-          // Indicate with loading overlay
+          // Indicate loading with overlay
           showDialog(
             context: context,
-            barrierDismissible: false,
+            // barrierDismissible: false,
             builder: (BuildContext dialogContext) => Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -180,21 +177,24 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
             ),
           );
 
-          // Save fortune to profile
-          bool _isSuccessfullySaved = await ref
-              .read(providerFortunes)
-              .addFortune(text: generatedText!, type: fortuneType!);
+          // Extract fortune data
+          String extractedText =
+              generatedText!.substring(0, generatedText!.lastIndexOf('.') + 1);
+          String extractedType = generatedText!
+              .substring(generatedText!.lastIndexOf('.') + 1)
+              .trim();
 
-          // Prompt save success
-          if (!_isSuccessfullySaved) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('There was an error saving the fortune.')));
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Fortune was saved successfully.')));
-          }
+          // Add new fortune to provider
+          ref.read(providerFortunes).addFortune(
+                text: extractedText,
+                type: extractedType.toUpperCase() == 'BAD'
+                    ? FortuneType.BAD_LUCK
+                    : FortuneType.GOOD_LUCK,
+              );
 
-          // Remove loading indicator
+          // Pop off loading indicator
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Fortune was saved successfully.')));
           Navigator.of(context, rootNavigator: true).pop();
         },
 
@@ -205,9 +205,9 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // ************
-            // Genie Avatar
-            // ************
+            // **************************************
+            // The genie who tells a fortune
+            // **************************************
             CircleAvatar(
               backgroundColor: Colors.indigoAccent,
               radius: 100,
@@ -218,12 +218,13 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
             // *****************************************
             // Text Bubble
             // *****************************************
-            if (generatedText != null && !_isGenerating)
+            if (!_isGenerating && generatedText != null) // Added null check
               Padding(
                 padding: EdgeInsets.all(8),
                 child: Container(
+                  // Show generated fortune text
                   child: Text(
-                    '$generatedText',
+                    '${generatedText!.substring(0, generatedText!.lastIndexOf('.') + 1)}',
                     style: TextStyle(color: Colors.white),
                     softWrap: true,
                   ),
@@ -245,7 +246,6 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
             // ***************
             // Tell a fortune
             // ***************
-            // FIXME: Fortune gets erased when switching out of screen. Maybe use providers to store previous fortune
             ElevatedButton(
               child: Text(
                 'Tell me a fortune.',
