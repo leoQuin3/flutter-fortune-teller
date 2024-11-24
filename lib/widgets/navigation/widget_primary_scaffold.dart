@@ -26,7 +26,6 @@ import '../../main.dart';
 // Custom file imports
 import 'package:csc322_starter_app/widgets/general/bottom_nav_bar.dart';
 
-
 //////////////////////////////////////////////////////////////////////////
 // Localized provider for the current tab index
 //////////////////////////////////////////////////////////////////////////
@@ -190,7 +189,7 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
       // Main content (Home screen, Alternate screen)
       // ********************************************
       body: _getScreenToDisplay(currentTabIndex),
-
+      
       // **************************************
       // Bottom navigator bar
       // **************************************

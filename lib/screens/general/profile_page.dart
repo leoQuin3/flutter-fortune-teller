@@ -1,35 +1,32 @@
+import 'dart:io';
 import 'dart:typed_data';
 // import 'package:csc322_starter_app/screens/general/screen_home.dart';
 // import 'package:csc322_starter_app/widgets/general/bottom_nav_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:csc322_starter_app/main.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-class ProfilePage extends StatefulWidget {
+// ***********************************************
+// Page to change name, email, and profile image
+// ***********************************************
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
   // URL for this widget
   static const routeName = '/profilePageEdit';
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  Uint8List? pickedImage;
+class _ProfilePageState extends ConsumerState<ProfilePage> {
+  File? pickedImage;
   String? userEmail;
-  String? username; // Store the username here
-
-  @override
-  void initState() {
-    super.initState();
-    final user = FirebaseAuth.instance.currentUser;
-    setState(() {
-      userEmail = user?.email;
-    });
-  }
+  String? username;
+  String? userId;
 
   //Fetch username from Firebase Firestore
   Future<void> _fetchUsername(String uid) async {
@@ -83,114 +80,144 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // Profile image picker function
+  // TODO: Save to database (leo)
   Future<void> onProfileTapped() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image == null) return;
 
-    final storageRef = FirebaseStorage.instance.ref();
-    final imageRef = storageRef.child("user_1.jpg");
-    final imageBytes = await image.readAsBytes();
+    // final storageRef = FirebaseStorage.instance.ref();
+    // final imageRef = storageRef.child("user_1.jpg");
+    // final imageBytes = await image.readAsBytes();
 
-    // Save image data locally
+    // // Save image data locally
     setState(() {
-      pickedImage = imageBytes;
+      pickedImage = File(image.path);
     });
 
-    // Upload to Firebase
-    await imageRef.putData(imageBytes);
+    // // Upload to Firebase
+    // await imageRef.putData(imageBytes);
   }
 
   @override
   Widget build(BuildContext context) {
+    // Using user profile provider to fetch user data (leo)
+    final userProfile = ref.watch(providerUserProfile);
+    username = userProfile.wholeName;
+    userEmail = userProfile.email;
+    userId = userProfile.uid;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Profile'),
+        title: Text('Your Profile',
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: Theme.of(context).colorScheme.primary,
 
         // Return to previous page
         actions: [],
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.center,
             colors: <Color>[
-              Colors.blue,
-              Colors.white,
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
             ],
           ),
         ),
-        child: ListView(
-          children: [
-            const Padding(padding: EdgeInsets.only(top: 20)),
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  /////////////////////
-                  ///Set up a gesture detector which would allow us to see if
-                  ///the user clicked on the profile picture screen
-                  ////////////////////
-                  GestureDetector(
-                    onTap: onProfileTapped,
-                    //TODO: Turn this into a stack and add a smaller circle bottom left of circleAvatar to show that users can add picture
 
-                    child: CircleAvatar(
+        // Replaced ListView with Column since there wasn't much to scroll thru. You can change it back if needed. (leo)
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              const SizedBox(height: 40),
+
+              /////////////////////
+              ///Set up a gesture detector which would allow us to see if
+              ///the user clicked on the profile picture screen
+              ////////////////////
+              GestureDetector(
+                // Edit profile image
+                onTap: onProfileTapped,
+                child: Stack(
+                  children: [
+                    CircleAvatar(
                       radius: 50,
-                      backgroundColor: Colors.brown.shade800,
-                      backgroundImage: pickedImage != null
-                          ? MemoryImage(pickedImage!)
-                          : null,
-                      child: pickedImage == null
-                          ? const Icon(Icons.person_outline)
-                          : null,
+                      backgroundColor: Theme.of(context).colorScheme.tertiary,
+                      backgroundImage:
+                          pickedImage != null ? FileImage(pickedImage!) : null,
+                      child: pickedImage != null
+                          ? null
+                          : Icon(
+                              Icons.person_outline,
+                              size: 35,
+                            ),
                     ),
-                  ),
-                  const SizedBox(height: 40),
-                  // Display the entered username or "No username" if none entered
-                  Text(
-                    username ??
-                        'No Username Provided', // Show username or placeholder
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  // Display the email (if available) from FirebaseAuth
-                  Text(
-                    userEmail ?? 'No Email Found',
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                ],
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        child: Icon(Icons.photo_camera),
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black.withOpacity(0.5),
+                                  blurRadius: 6)
+                            ]),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 40),
+
+              // Display the entered username or "No username" if none entered
+              Text(
+                username ??
+                    'No Username Provided', // Show username or placeholder
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 6,
+                      offset: Offset(3, 3),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Display the email (if available) from FirebaseAuth
+              Text(
+                userEmail ?? 'No Email Found',
+                style: TextStyle(
+                  fontSize: 18,
+                  color:
+                      Theme.of(context).colorScheme.onPrimary.withOpacity(0.75),
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 6,
+                      offset: Offset(3, 3),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-
-      /////////////////////
-      ///This will control the bottom navigation bar and allows
-      ///switching between main and profile screen.
-      ///
-      ///There is a BottomNavBar.dart which holds the syntax for setting up
-      ///the navigation bar.
-      ///
-      ///This Navigation is copied into the MainScreen file with the indexes being
-      ///reversed.
-      /////////////////////
-      //   bottomNavigationBar: BottomNavBar(
-      //     currentIndex: 1,
-      //     onTap: (index) {
-      //       if (index == 0) {
-      //         Navigator.pushReplacement(
-      //           context,
-      //           // TODO: Connect ScreenHome here, then figure how to integrate into GoRouter in main.dart.
-      //           MaterialPageRoute(builder: (context) => ScreenHome()),
-      //         );
-      //       }
-      //     },
-      //   ),
     );
   }
 }

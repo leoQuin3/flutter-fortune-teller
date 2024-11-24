@@ -77,18 +77,16 @@ class _ScreenAlternateState extends ConsumerState<ScreenAlternate> {
       // ****************************************************
       // Show list of all fortunes saved to and from database
       // ****************************************************
-      body: Expanded(
-        child: ListView.builder(
-          itemCount: fortuneList.length,
-          itemBuilder: (context, index) => Column(
-            children: [
-              SizedBox(height: 15),
-              Padding(
-                child: FortuneListItem(text: fortuneList[index].text, type: fortuneList[index].type,),
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-              ),
-            ],
-          ),
+      body: ListView.builder(
+        itemCount: fortuneList.length,
+        itemBuilder: (context, index) => Column(
+          children: [
+            SizedBox(height: 15),
+            Padding(
+              child: FortuneListItem(text: fortuneList[index].text, type: fortuneList[index].type,),
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+            ),
+          ],
         ),
       ),
     );

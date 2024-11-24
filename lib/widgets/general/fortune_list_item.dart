@@ -11,7 +11,6 @@ class FortuneListItem extends ListTile {
 
   @override
   Widget build(BuildContext context) {
-    print(type);
     return ListTile(
       title: Text('$text',
           style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
@@ -19,7 +18,9 @@ class FortuneListItem extends ListTile {
         Icons.auto_awesome,
         color: Theme.of(context).colorScheme.onPrimary,
       ),
-      tileColor: type == FortuneType.BAD_LUCK ? Colors.red : Colors.lightGreen,
+      tileColor: type == FortuneType.BAD_LUCK
+          ? Colors.red.shade700
+          : Colors.greenAccent.shade700,
       contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 8),
       shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(6)),
     );

@@ -16,6 +16,7 @@ import 'dart:async';
 // Flutter external package imports
 import 'package:csc322_starter_app/main.dart';
 import 'package:csc322_starter_app/models/fortune.dart';
+import 'package:csc322_starter_app/widgets/general/text_bubble.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
   bool _isInit = true;
   bool _isGenerating = false;
   bool _hasErrorOccurred = false;
+  bool _hasSaved = false;
   Fortune? fortune;
   String? generatedText;
 
@@ -63,6 +65,8 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
     // Update UI to "loading" state
     setState(() {
       _isGenerating = true;
+      _hasErrorOccurred = false;
+      _hasSaved = false;
     });
 
     try {
@@ -91,9 +95,77 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
     }
   }
 
-  ////////////////////////////////////////////////////////////////
+  // ****************************
+  // Save fortune to provider
+  // ****************************
+  // TODO: save fortune to database
+  void saveFortune() {
+    // Cancel if waiting for fortune or no fortune is generated
+    if (_hasSaved ||
+        _isGenerating ||
+        generatedText == null ||
+        generatedText!.isEmpty) {
+      return;
+    }
+
+    // Cancel if an error has occurred
+    if (_hasErrorOccurred) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('There was an error saving a fortune.'), backgroundColor: Colors.red,));
+      return;
+    }
+
+    // Indicate loading with overlay
+    // TODO: When saving fortune to db,  show indicator
+    /*
+    showDialog(
+      context: context,
+      // barrierDismissible: false,
+      builder: (BuildContext dialogContext) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Saving fortune...',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            SizedBox(height: 16),
+            CircularProgressIndicator(color: Colors.white),
+          ],
+        ),
+      ),
+    );
+    */
+
+    // Extract fortune data
+    String extractedText =
+        generatedText!.substring(0, generatedText!.lastIndexOf('.') + 1);
+    String extractedType =
+        generatedText!.substring(generatedText!.lastIndexOf('.') + 1).trim();
+
+    // Add new fortune to provider
+    ref.read(providerFortunes).addFortune(
+          text: extractedText,
+          type: extractedType.toUpperCase() == 'BAD'
+              ? FortuneType.BAD_LUCK
+              : FortuneType.GOOD_LUCK,
+        );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fortune was saved successfully.'), backgroundColor: Colors.green,));
+
+    _hasSaved = true;
+
+    // Pop off loading indicator
+    // TODO: After saving fortune to database, pop off indicator
+    /*
+    Navigator.of(context, rootNavigator: true).pop();
+    */
+  }
+
   // Runs the following code once upon initialization
-  ////////////////////////////////////////////////////////////////
   @override
   void didChangeDependencies() {
     // If first time running this code, update provider settings
@@ -110,7 +182,7 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
 
     // Define model
     model = GenerativeModel(
-      model: 'gemini-1.5-flash',
+      model: 'gemini-1.5-flash-latest',
       apiKey: GEMINI_API_KEY,
       generationConfig: GenerationConfig(
         temperature: 2,
@@ -124,137 +196,82 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
     );
   }
 
-  ////////////////////////////////////////////////////////////////
   // Initializes state variables and resources
-  ////////////////////////////////////////////////////////////////
   Future<void> _init() async {}
 
-  //////////////////////////////////////////////////////////////////////////
-  // Primary Flutter method overridden which describes the layout and bindings for this widget.
-  //////////////////////////////////////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Button to save fortune
       floatingActionButton: FloatingActionButton(
         shape: ShapeBorder.lerp(CircleBorder(), StadiumBorder(), 0.5),
-
-        // ****************************
-        // Save fortune to profile
-        // ****************************
-        onPressed: () async {
-          // Cancel if waiting for fortune or no fortune is generated
-          if (_isGenerating ||
-              generatedText == null ||
-              generatedText!.isEmpty) {
-            return;
-          }
-
-          // Cancel if an error has occurred 
-          if (_hasErrorOccurred) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('There was an error saving a fortune.')));
-            return;
-          }
-
-          // Indicate loading with overlay
-          showDialog(
-            context: context,
-            // barrierDismissible: false,
-            builder: (BuildContext dialogContext) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Saving fortune...',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  SizedBox(height: 16),
-                  CircularProgressIndicator(color: Colors.white),
-                ],
-              ),
-            ),
-          );
-
-          // Extract fortune data
-          String extractedText =
-              generatedText!.substring(0, generatedText!.lastIndexOf('.') + 1);
-          String extractedType = generatedText!
-              .substring(generatedText!.lastIndexOf('.') + 1)
-              .trim();
-
-          // Add new fortune to provider
-          ref.read(providerFortunes).addFortune(
-                text: extractedText,
-                type: extractedType.toUpperCase() == 'BAD'
-                    ? FortuneType.BAD_LUCK
-                    : FortuneType.GOOD_LUCK,
-              );
-
-          // Pop off loading indicator
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Fortune was saved successfully.')));
-          Navigator.of(context, rootNavigator: true).pop();
-        },
-
+        onPressed: !_isGenerating ? saveFortune : () {},
         splashColor: Theme.of(context).primaryColor,
         child: Icon(FontAwesomeIcons.plus),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // **************************************
-            // The genie who tells a fortune
-            // **************************************
-            CircleAvatar(
-              backgroundColor: Colors.indigoAccent,
-              radius: 100,
-            ),
 
-            SizedBox(height: 25),
-
-            // *****************************************
-            // Text Bubble
-            // *****************************************
-            if (!_isGenerating && generatedText != null) // Added null check
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Container(
-                  // Show generated fortune text
-                  child: Text(
-                    '${generatedText!.substring(0, generatedText!.lastIndexOf('.') + 1)}',
-                    style: TextStyle(color: Colors.white),
-                    softWrap: true,
-                  ),
-                  alignment: Alignment.center,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                  ),
-                  constraints: BoxConstraints(maxWidth: 300),
-                ),
-              )
-            else if (_isGenerating)
-              CircularProgressIndicator(),
-
-            SizedBox(height: 25),
-
-            // ***************
-            // Tell a fortune
-            // ***************
-            ElevatedButton(
-              child: Text(
-                'Tell me a fortune.',
-                style: TextStyle(color: Colors.white),
+      // Main content
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // **************************************
+              // The genie who tells a fortune
+              // **************************************
+              CircleAvatar(
+                backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                radius: 100,
               ),
-              onPressed: !_isGenerating ? generateFortune : () {},
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-            ),
-          ],
+
+              SizedBox(height: 25),
+
+              // *****************************************
+              // Text Bubble
+              // *****************************************
+              if (!_isGenerating && generatedText != null)
+                TextBubble(
+                  text: !_hasErrorOccurred ? generatedText!
+                      .substring(0, generatedText!.lastIndexOf('.') + 1) : 'There was an error generating a fortune. Please try again.',
+                  textColor: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.surface,
+                  fontSize: 16,
+                )
+              else if (_isGenerating)
+                CircularProgressIndicator(
+                    color: Theme.of(context).colorScheme.surface),
+
+              SizedBox(height: 25),
+
+              // ***************
+              // Tap Button
+              // ***************
+              ElevatedButton(
+                child: Text(
+                  'Tell me a fortune.',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.surface,
+                      fontSize: 16),
+                ),
+                onPressed: !_isGenerating ? generateFortune : () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.onSurface,
+                  elevation: 8,
+                  shadowColor: Colors.black.withOpacity(0.5),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

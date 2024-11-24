@@ -18,18 +18,19 @@ import 'package:csc322_starter_app/theme/colors.dart';
 //////////////////////////////////////////////////////////////////////////
 final ThemeData lightTheme = ThemeData(
   colorScheme: ColorScheme(
-    // primary: Color(0xFF7FBDDC),
-    primary: Colors.indigo[400]!,
+    primary: Colors.indigoAccent,
     onPrimary: Color(0xFFFFFFFF),
-    // onPrimary: Color(0xFF022A3A),
-    secondary: Color.fromARGB(255, 219, 11, 208),
+    secondary: Colors.deepPurple,
     onSecondary: Color(0xFFFFFFFF),
-    surface: CustomColors.offWhite,
-    error: Color(0xFFCC0000),
+    tertiary: Colors.amberAccent,
+    onTertiary: Colors.white,
+    surface: Color(0xFFF3F4F6),
+    onSurface: Color(0xFF1A1A1A),
+    error: Color(0xFFD32F2F),
     onError: Color(0xFFFFFFFF),
-    onSurface: Color(0xFF022A3A),
     brightness: Brightness.light,
   ),
+
   useMaterial3: true,
   brightness: Brightness.light,
   scaffoldBackgroundColor: CustomColors.primaryBackgroundLightMode,
@@ -116,7 +117,8 @@ final ThemeData darkTheme = ThemeData(
 //////////////////////////////////////////////////////////////////////////
 // FLOATING ACTION BUTTON THEME
 //////////////////////////////////////////////////////////////////////////
-FloatingActionButtonThemeData milFloatingActionButtonTheme = FloatingActionButtonThemeData(
+FloatingActionButtonThemeData milFloatingActionButtonTheme =
+    FloatingActionButtonThemeData(
   backgroundColor: CustomColors.statusInfo,
   foregroundColor: Colors.white,
 );
@@ -176,7 +178,8 @@ ElevatedButtonThemeData milLightElevatedButtonTheme = ElevatedButtonThemeData(
 //////////////////////////////////////////////////////////////////////////
 TextButtonThemeData milLightTextButtonTheme = TextButtonThemeData(
   style: ButtonStyle(
-    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(0)),
+    padding:
+        MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(0)),
     textStyle: MaterialStateProperty.all<TextStyle>(
       const TextStyle(fontWeight: FontWeight.bold),
     ),
@@ -185,17 +188,20 @@ TextButtonThemeData milLightTextButtonTheme = TextButtonThemeData(
 );
 TextButtonThemeData milDarkTextButtonTheme = TextButtonThemeData(
   style: ButtonStyle(
-    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(0)),
+    padding:
+        MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(0)),
     textStyle: MaterialStateProperty.all<TextStyle>(
       const TextStyle(fontWeight: FontWeight.bold),
     ),
-    foregroundColor: MaterialStateProperty.all<Color>(CustomColors.statusInfoDarkMode),
+    foregroundColor:
+        MaterialStateProperty.all<Color>(CustomColors.statusInfoDarkMode),
   ),
 );
 
 //////////////////////////////////////////////////////////////////////////
 // BOTTOM NAVIGATION BAR THEME (LIGHT MODE)
 //////////////////////////////////////////////////////////////////////////
-BottomNavigationBarThemeData milLightBottomNavigationBarTheme = BottomNavigationBarThemeData(
+BottomNavigationBarThemeData milLightBottomNavigationBarTheme =
+    BottomNavigationBarThemeData(
   backgroundColor: CustomColors.cloudGrey,
 );

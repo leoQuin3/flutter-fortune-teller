@@ -11,6 +11,8 @@
 // Flutter imports
 
 // Flutter external package imports
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
@@ -71,11 +73,10 @@ class _PrimaryAppBar extends ConsumerState<WidgetPrimaryAppBar> {
   ////////////////////////////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
-    // Get the number of notifications
-
     return AppBar(
       title: widget.title,
       elevation: 0,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       actions: [
         IconButton(
           icon: const Icon(Icons.add, color: CustomColors.statusError),
