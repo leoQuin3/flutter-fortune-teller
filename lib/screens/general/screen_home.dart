@@ -17,6 +17,7 @@ import 'dart:async';
 import 'package:csc322_starter_app/main.dart';
 import 'package:csc322_starter_app/models/fortune.dart';
 import 'package:csc322_starter_app/widgets/general/text_bubble.dart';
+import 'package:csc322_starter_app/widgets/navigation/widget_primary_app_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';

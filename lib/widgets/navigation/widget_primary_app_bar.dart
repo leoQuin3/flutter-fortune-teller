@@ -20,13 +20,18 @@ import 'package:flutter/material.dart';
 import '../../util/message_display/snackbar.dart';
 import '../../theme/colors.dart';
 
-class WidgetPrimaryAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget {
+class WidgetPrimaryAppBar extends ConsumerStatefulWidget
+    implements PreferredSizeWidget {
   // Constant parameters passedin
   final Widget title;
   final List<Widget>? actionButtons;
   bool inCurrentMeeting;
 
-  WidgetPrimaryAppBar({Key? key, required this.title, this.actionButtons, this.inCurrentMeeting = false})
+  WidgetPrimaryAppBar(
+      {Key? key,
+      required this.title,
+      this.actionButtons,
+      this.inCurrentMeeting = false})
       : super(key: key);
   // UserData().updateProfileImage();
 
@@ -78,10 +83,19 @@ class _PrimaryAppBar extends ConsumerState<WidgetPrimaryAppBar> {
       elevation: 0,
       backgroundColor: Theme.of(context).colorScheme.surface,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.add, color: CustomColors.statusError),
-          onPressed: () =>
-              Snackbar.show(SnackbarDisplayType.SB_INFO, 'You clicked the action button in the app bar!', context),
+        // TODO: Allow user to change model, and allow to change categories by opening a new screen. Use fortunes provider to choose current provider
+        PopupMenuButton(
+          icon: Icon(Icons.settings),
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              child: Text('Configure Model'),
+              value: 'category',
+            ),
+            PopupMenuItem(
+              child: Text('Change Categories'),
+              value: 'category',
+            ),
+          ],
         ),
         if (widget.actionButtons != null)
           ...widget.actionButtons!.map((e) {
