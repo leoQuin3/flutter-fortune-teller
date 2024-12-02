@@ -13,6 +13,7 @@
 
 // Flutter external package imports
 import 'package:csc322_starter_app/providers/provider_fortunes.dart';
+import 'package:csc322_starter_app/screens/general/categories_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:go_router/go_router.dart';
@@ -50,7 +51,8 @@ final providerTts = ChangeNotifierProvider<ProviderTts>((ref) {
   final userProfile = ref.watch(providerUserProfile);
   return ProviderTts(userProfile);
 });
-final providerFortunes = ChangeNotifierProvider<ProviderFortunes>((ref) => ProviderFortunes(ref));
+final providerFortunes =
+    ChangeNotifierProvider<ProviderFortunes>((ref) => ProviderFortunes(ref));
 
 //////////////////////////////////////////////////////////////////////////
 // MAIN entry point to start app.
@@ -133,6 +135,11 @@ class _MyAppState extends State<MyApp> {
         builder: (BuildContext context, GoRouterState state) =>
             ScreenAlternate(),
       ),
+      // Categories screen
+      GoRoute(
+        path: CategoriesScreen.routeName,
+        builder: (context, state) => CategoriesScreen(),
+      )
     ],
   );
 

@@ -13,8 +13,12 @@
 // Flutter external package imports
 import 'dart:io';
 
+import 'package:csc322_starter_app/main.dart';
+import 'package:csc322_starter_app/screens/general/categories_screen.dart';
+import 'package:csc322_starter_app/widgets/navigation/widget_app_drawer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 // App relative file imports
 import '../../util/message_display/snackbar.dart';
@@ -80,19 +84,24 @@ class _PrimaryAppBar extends ConsumerState<WidgetPrimaryAppBar> {
   Widget build(BuildContext context) {
     return AppBar(
       title: widget.title,
-      elevation: 0,
+      centerTitle: true,
+      // elevation: 0,
       backgroundColor: Theme.of(context).colorScheme.surface,
       actions: [
         // TODO: Allow user to change model, and allow to change categories by opening a new screen. Use fortunes provider to choose current provider
         PopupMenuButton(
           icon: Icon(Icons.settings),
+          offset: Offset(0, 40),
           itemBuilder: (context) => [
             PopupMenuItem(
-              child: Text('Configure Model'),
+              child: Text('Change Categories'),
               value: 'category',
+              onTap: () {
+                context.push(CategoriesScreen.routeName);
+              },
             ),
             PopupMenuItem(
-              child: Text('Change Categories'),
+              child: Text('Configure Model'),
               value: 'category',
             ),
           ],

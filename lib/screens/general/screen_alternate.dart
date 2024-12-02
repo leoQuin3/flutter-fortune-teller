@@ -87,10 +87,13 @@ class _ScreenAlternateState extends ConsumerState<ScreenAlternate> {
               child: Dismissible(
                 key: Key(fortuneList[index].id),
                 direction: DismissDirection.endToStart,
+
                 child: FortuneListItem(
                   text: fortuneList[index].text,
                   type: fortuneList[index].type,
                 ),
+
+                // Red background when deleting
                 background: Container(
                   alignment: Alignment.centerRight,
                   padding: EdgeInsets.only(right: 20),
