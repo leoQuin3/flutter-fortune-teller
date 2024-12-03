@@ -23,15 +23,17 @@ import 'widget_primary_app_bar.dart';
 import 'widget_app_drawer.dart';
 import '../../main.dart';
 
+// Custom file imports
+import 'package:csc322_starter_app/widgets/general/bottom_nav_bar.dart';
+
 //////////////////////////////////////////////////////////////////////////
 // Localized provider for the current tab index
 //////////////////////////////////////////////////////////////////////////
 final providerPrimaryBottomNavTabIndex = StateProvider<int>((ref) => 0);
 
-//////////////////////////////////////////////////////////////////////////
-// StateFUL widget which manages state. Simply initializes the
-// state object.
-//////////////////////////////////////////////////////////////////////////
+// **********************************************************
+// Main scaffold that holds everything together
+// **********************************************************
 class WidgetPrimaryScaffold extends ConsumerStatefulWidget {
   static const routeName = "/home";
 
@@ -39,7 +41,8 @@ class WidgetPrimaryScaffold extends ConsumerStatefulWidget {
 
   @override
   // ignore: library_private_types_in_public_api
-  ConsumerState<WidgetPrimaryScaffold> createState() => _WidgetPrimaryScaffoldState();
+  ConsumerState<WidgetPrimaryScaffold> createState() =>
+      _WidgetPrimaryScaffoldState();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -48,7 +51,6 @@ class WidgetPrimaryScaffold extends ConsumerStatefulWidget {
 class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
   // The "instance variables" managed in this state
   var _isInit = true;
-  // int _currentTabIndex = 0;
   late Image shareImageFocus;
   late Image shareImageLightUnfocused;
   late Image shareImageDarkUnfocused;
@@ -128,8 +130,10 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
   // screen to display.
   ////////////////////////////////////////////////////////////////
   Widget _getScreenToDisplay(int currentTabIndex) {
+    // Show main screen
     if (currentTabIndex == BottomNavSelection.HOME_SCREEN.index)
       return ScreenHome();
+    // Show saved fortunes
     else if (currentTabIndex == BottomNavSelection.ALTERNATE_SCREEN.index)
       return ScreenAlternate();
     else
@@ -144,7 +148,7 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
     if (currentTabIndex == BottomNavSelection.HOME_SCREEN.index)
       return Text("Home");
     else
-      return Text("Alternate");
+      return Text("Saved Fortunes");
   }
 
   ////////////////////////////////////////////////////////////////
@@ -175,25 +179,25 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
         actionButtons: _getAppBarActions(currentTabIndex),
         title: _getAppBarTitle(currentTabIndex),
       ),
+
+      // *************************
+      // Drawer with settings
+      // *************************
       drawer: WidgetAppDrawer(),
+
+      // ********************************************
+      // Main content (Home screen, Alternate screen)
+      // ********************************************
       body: _getScreenToDisplay(currentTabIndex),
-      bottomNavigationBar: BottomNavigationBar(
+      
+      // **************************************
+      // Bottom navigator bar
+      // **************************************
+      bottomNavigationBar: BottomNavBar(
         currentIndex: currentTabIndex,
         onTap: (index) {
           ref.read(providerPrimaryBottomNavTabIndex.notifier).state = index;
         },
-        items: [
-          BottomNavigationBarItem(
-            label: "Home",
-            activeIcon: Icon(FontAwesomeIcons.house),
-            icon: Icon(FontAwesomeIcons.house),
-          ),
-          BottomNavigationBarItem(
-            label: "Alternate",
-            activeIcon: Icon(FontAwesomeIcons.building),
-            icon: Icon(FontAwesomeIcons.building),
-          ),
-        ],
       ),
     );
   }

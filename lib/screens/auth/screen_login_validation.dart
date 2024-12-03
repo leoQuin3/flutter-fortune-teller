@@ -40,7 +40,8 @@ class ScreenLoginValidation extends ConsumerStatefulWidget {
   const ScreenLoginValidation({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<ScreenLoginValidation> createState() => _ScreenLoginValidationState();
+  ConsumerState<ScreenLoginValidation> createState() =>
+      _ScreenLoginValidationState();
 }
 
 //////////////////////////////////////////////////////////////////
@@ -100,9 +101,13 @@ class _ScreenLoginValidationState extends ConsumerState<ScreenLoginValidation> {
     // const WidgetAnnotatedLoading(loadingText: "Loading...")
 
     if (_providerAuth.isShowingSplash) {
+      // Show splash animation (loading)
       return const ScreenSplash();
+
+      // Authentication animations
     } else if (_providerAuth.authState == AuthState.UNKNOWN) {
-      return const WidgetAnnotatedLoading(loadingText: "Authenticating User...");
+      return const WidgetAnnotatedLoading(
+          loadingText: "Authenticating User...");
     } else if (_providerAuth.authState == AuthState.UN_AUTHENTICATED) {
       return const ScreenAuth();
     } else if (ENFORCE_EMAIL_VERIFICATION &&
@@ -162,9 +167,11 @@ class _ScreenLoginValidationState extends ConsumerState<ScreenLoginValidation> {
         builder: (context, watch, child) {
           _providerAuth = ref.watch(providerAuth);
           _providerUserProfile = ref.watch(providerUserProfile);
-          bool isLoggedIn = _providerAuth.authState == AuthState.AUTHENTICATED &&
-              _providerUserProfile.dataLoaded &&
-              _providerUserProfile.accountCreationStep == AccountCreationStep.ACC_STEP_ONBOARDING_COMPLETE;
+          bool isLoggedIn =
+              _providerAuth.authState == AuthState.AUTHENTICATED &&
+                  _providerUserProfile.dataLoaded &&
+                  _providerUserProfile.accountCreationStep ==
+                      AccountCreationStep.ACC_STEP_ONBOARDING_COMPLETE;
           return ScrollableBackground(
             child: _getWidgetToShow(),
             padding: isLoggedIn ? 0 : 20,

@@ -14,16 +14,18 @@
 import 'dart:async';
 
 // Flutter external package imports
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:csc322_starter_app/main.dart';
+import 'package:csc322_starter_app/models/fortune.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
-// App relative file imports
-import '../../util/message_display/snackbar.dart';
 
-//////////////////////////////////////////////////////////////////////////
-// StateFUL widget which manages state. Simply initializes the state object.
-//////////////////////////////////////////////////////////////////////////
+// Custom file imports
+import 'package:csc322_starter_app/widgets/general/fortune_list_item.dart';
+
+// ***************************************************
+// Show list of all fortunes saved
+// ***************************************************
 class ScreenAlternate extends ConsumerStatefulWidget {
   static const routeName = '/alternative';
 
@@ -66,16 +68,66 @@ class _ScreenAlternateState extends ConsumerState<ScreenAlternate> {
   //////////////////////////////////////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
-    // Return the scaffold
+    var fortuneProvider = ref.watch(providerFortunes);
+    List<Fortune> fortuneList;
+
+    fortuneProvider.fetchFortunesFromProfile;
+
+    if (fortuneProvider.isFiltered) {
+      fortuneList = fortuneProvider.getFilteredFortunes();
+    }
+    else {
+      fortuneList = fortuneProvider.fortunes;
+    }
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        shape: ShapeBorder.lerp(CircleBorder(), StadiumBorder(), 0.5),
-        onPressed: () => Snackbar.show(
-            SnackbarDisplayType.SB_INFO, 'You clicked the floating button on the alternate screen!', context),
-        splashColor: Theme.of(context).primaryColor,
-        child: Icon(FontAwesomeIcons.plus),
+      // ****************************************************
+      // Show list of all fortunes saved to and from database
+      // ****************************************************
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await fortuneProvider.fetchFortunesFromProfile();
+        },
+        child: ListView.builder(
+          itemCount: fortuneList.length,
+          itemBuilder: (context, index) => Column(
+            children: [
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Dismissible(
+                  key: Key(fortuneList[index].id),
+                  direction: DismissDirection.endToStart,
+        
+                  child: FortuneListItem(
+                    text: fortuneList[index].text,
+                    category: fortuneList[index].category,
+                  ),
+        
+                  // Red background when deleting
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 20),
+                    color: Colors.red,
+                    child: Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (direction) {
+                    ref
+                        .read(providerFortunes.notifier)
+                        .removeFortune(fortuneList[index]);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Fortune deleted.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      body: Text('Alternate'),
     );
   }
 }
