@@ -15,15 +15,12 @@ import 'dart:async';
 
 // Flutter external package imports
 import 'package:csc322_starter_app/main.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:csc322_starter_app/models/fortune.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
-// App relative file imports
-import '../../util/message_display/snackbar.dart';
 
 // Custom file imports
-import 'package:csc322_starter_app/models/fortune.dart';
 import 'package:csc322_starter_app/widgets/general/fortune_list_item.dart';
 
 // ***************************************************
@@ -71,49 +68,64 @@ class _ScreenAlternateState extends ConsumerState<ScreenAlternate> {
   //////////////////////////////////////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
-    var fortuneList = ref.watch(providerFortunes).fortunes;
+    var fortuneProvider = ref.watch(providerFortunes);
+    List<Fortune> fortuneList;
+
+    fortuneProvider.fetchFortunesFromProfile;
+
+    if (fortuneProvider.isFiltered) {
+      fortuneList = fortuneProvider.getFilteredFortunes();
+    }
+    else {
+      fortuneList = fortuneProvider.fortunes;
+    }
 
     return Scaffold(
       // ****************************************************
       // Show list of all fortunes saved to and from database
       // ****************************************************
-      body: ListView.builder(
-        itemCount: fortuneList.length,
-        itemBuilder: (context, index) => Column(
-          children: [
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Dismissible(
-                key: Key(fortuneList[index].id),
-                direction: DismissDirection.endToStart,
-
-                child: FortuneListItem(
-                  text: fortuneList[index].text,
-                  type: fortuneList[index].type,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await fortuneProvider.fetchFortunesFromProfile();
+        },
+        child: ListView.builder(
+          itemCount: fortuneList.length,
+          itemBuilder: (context, index) => Column(
+            children: [
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Dismissible(
+                  key: Key(fortuneList[index].id),
+                  direction: DismissDirection.endToStart,
+        
+                  child: FortuneListItem(
+                    text: fortuneList[index].text,
+                    category: fortuneList[index].category,
+                  ),
+        
+                  // Red background when deleting
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 20),
+                    color: Colors.red,
+                    child: Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (direction) {
+                    ref
+                        .read(providerFortunes.notifier)
+                        .removeFortune(fortuneList[index]);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Fortune deleted.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  },
                 ),
-
-                // Red background when deleting
-                background: Container(
-                  alignment: Alignment.centerRight,
-                  padding: EdgeInsets.only(right: 20),
-                  color: Colors.red,
-                  child: Icon(Icons.delete, color: Colors.white),
-                ),
-                onDismissed: (direction) {
-                  ref
-                      .read(providerFortunes.notifier)
-                      .removeFortune(fortuneList[index].id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Fortune deleted.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

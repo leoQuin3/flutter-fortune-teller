@@ -97,3 +97,6 @@ flutter:
     - assets/images/
     - animations/
     - assets/
+    - assets/images/SpinningBall.gif
+    - assets/images/ArmLeft.jpg
+    - assets/images/ArmRight.jpg

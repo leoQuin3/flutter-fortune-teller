@@ -1,13 +1,11 @@
 // ************************************
 // Data model for an individual fortune
 // ************************************
-import 'package:uuid/uuid.dart';
-
-enum FortuneType {GOOD_LUCK, BAD_LUCK}
+import 'package:csc322_starter_app/widgets/general/categories.dart';
 
 class Fortune {
-  const Fortune({required this.text, required this.type, required this.id});
+  const Fortune({required this.text, required this.category, required this.id});
   final String text;
-  final FortuneType type;
+  final Categories category;
   final String id;
 }

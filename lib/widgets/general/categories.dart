@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // *********************************************
 // Different categories that describes a fortune
 // *********************************************
-enum Categories { ROMANCE, WORK, HEALTH, ADVENTURE, GOOD_LUCK, BAD_LUCK }
+enum Categories { ROMANCE, WORK, HEALTH, ADVENTURE, GOOD_LUCK, BAD_LUCK, MISC }
 
 // ******************************************
 // METHODS
@@ -13,23 +13,23 @@ enum Categories { ROMANCE, WORK, HEALTH, ADVENTURE, GOOD_LUCK, BAD_LUCK }
 Color getCategoryColor(Categories category) {
   switch (category) {
     case Categories.GOOD_LUCK:
-      return Colors.blue.shade300;
+      return Colors.green;
     case Categories.HEALTH:
-      return Colors.lightGreen;
+      return Colors.lightBlue.shade600;
     case Categories.ADVENTURE:
-      return Colors.yellow.shade400;
+      return Colors.yellowAccent.shade700;
     case Categories.WORK:
-      return Colors.orange.shade400;
+      return Colors.amber.shade800;
     case Categories.ROMANCE:
-      return Colors.pink.shade400;
+      return Colors.pink;
     case Categories.BAD_LUCK:
-      return Colors.red.shade600;
+      return Colors.red;
     default:
-      return Colors.grey;
+      return Colors.indigoAccent;
   }
 }
 
-// Match color to Icon
+// Match icon to category
 IconData getCategoryIcon(Categories category) {
   switch (category) {
     case Categories.GOOD_LUCK:
@@ -45,13 +45,36 @@ IconData getCategoryIcon(Categories category) {
     case Categories.BAD_LUCK:
       return FontAwesomeIcons.cat;
     default:
-      return FontAwesomeIcons.comment;
+      return Icons.auto_awesome;
   }
 }
 
-String getCategoryName(Categories category) {
+String getFormattedCategoryName(Categories category) {
   return category.name
       .split('_')
       .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
       .join(' ');
+}
+
+String getUnformattedCategoryName(Categories category) {
+  return Categories.values.firstWhere((element) => element == category).name;
+}
+
+Categories getCategory(String name) {
+  switch (name.toUpperCase()) {
+    case 'ROMANCE':
+      return Categories.ROMANCE;
+    case 'WORK':
+      return Categories.WORK;
+    case 'HEALTH':
+      return Categories.HEALTH;
+    case 'ADVENTURE':
+      return Categories.ADVENTURE;
+    case 'GOOD_LUCK':
+      return Categories.GOOD_LUCK;
+    case 'BAD_LUCK':
+      return Categories.BAD_LUCK;
+    default:
+      return Categories.MISC;
+  }
 }
