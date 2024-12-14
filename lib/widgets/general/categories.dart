@@ -17,7 +17,7 @@ Color getCategoryColor(Categories category) {
     case Categories.HEALTH:
       return Colors.lightBlue.shade600;
     case Categories.ADVENTURE:
-      return Colors.yellowAccent.shade700;
+      return Colors.yellow.shade700;
     case Categories.WORK:
       return Colors.amber.shade800;
     case Categories.ROMANCE:

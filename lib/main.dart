@@ -20,7 +20,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
 // App relative file imports
-import 'screens/general/screen_alternate.dart';
+import 'screens/general/screen_fortune_list.dart';
 import 'screens/general/screen_home.dart';
 import 'widgets/navigation/widget_primary_scaffold.dart';
 import 'screens/auth/screen_login_validation.dart';
@@ -131,9 +131,9 @@ class _MyAppState extends State<MyApp> {
       ),
       // Saved Fortunes
       GoRoute(
-        path: ScreenAlternate.routeName,
+        path: ScreenFortuneList.routeName,
         builder: (BuildContext context, GoRouterState state) =>
-            ScreenAlternate(),
+            ScreenFortuneList(),
       ),
       // Categories screen
       GoRoute(

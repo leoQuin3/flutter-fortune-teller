@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:csc322_starter_app/main.dart';
+import 'package:csc322_starter_app/widgets/general/user_info_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -61,6 +63,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -117,77 +121,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               const SizedBox(height: 40),
 
               /// Username Section
-              Column(
-                children: [
-                  Text(
-                    'Username',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 40),
-                    decoration: BoxDecoration(
-                      color: Colors.lightGreen,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      username ?? 'No Username Provided',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              UserInfoCard(text: username, label: 'Username'),
 
               /// Email Section
-              Column(
-                children: [
-                  Text(
-                    'Email',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.6),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 40),
-                    decoration: BoxDecoration(
-                      color: Colors.lightGreen,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      userEmail ?? 'No Email Found',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              UserInfoCard(text: userEmail, label: 'Email'),
 
               const SizedBox(height: 40),
 
@@ -225,7 +162,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
+                      children: [
                         Text(
                           'Fortunes received: $fortunesCount',
                           textAlign: TextAlign.center,
