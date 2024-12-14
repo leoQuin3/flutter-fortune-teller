@@ -15,12 +15,14 @@ import 'dart:async';
 import 'dart:math';
 
 // Flutter external package imports
+import 'package:flutter/material.dart';
 import 'package:csc322_starter_app/main.dart';
 import 'package:csc322_starter_app/widgets/general/categories.dart';
 import 'package:csc322_starter_app/widgets/general/text_bubble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 //////////////////////////////////////////////////////////////////////////
 // StateFUL widget which manages state. Simply initializes the state object.
@@ -66,7 +68,6 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
       // Select a random category for a fortune
       _randomCategory =
           Categories.values[Random().nextInt(Categories.values.length)];
-      print('FORTUNE WILL BE ABOUT: $_randomCategory');
 
       // Request fortune
       final response = await model.generateContent(
@@ -134,8 +135,11 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
     _hasSaved = true;
   }
 
-  String getformattedText(String text) {
-    return text!.trim().substring(0, text.lastIndexOf('.') + 1);
+  // ***********************************
+  // Format generated text
+  // ***********************************
+  String getFormattedText(String text) {
+    return text.trim().substring(0, text.lastIndexOf('.') + 1);
   }
 
   // Runs the following code once upon initialization
@@ -165,7 +169,7 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
         responseMimeType: 'text/plain',
       ),
       systemInstruction: Content.system(
-          'You are a genie who tells a fortune to the user. When they ask "Tell me a fortune about {CATEGORY}." create a unique fortune followed by a prediction whose topic is based on {CATEGORY}. If the category is {MISC}, then tell a whacky unpredictable fortune about anything. Your response must be short and concise, and be no longer than two sentences. Right after the last sentence, write the category WITHOUT the curly brackets.'),
+          'You are a genie who tells a fortune to the user. When they ask "Tell me a fortune about {CATEGORY}." create a unique fortune followed by a prediction whose topic is based on {CATEGORY}. If the category is {MISC}, then tell a whacky unpredictable fortune about anything. Your response must be short, concise, unique, and be no longer than two sentences. Do not repeat yourself. Right after the last sentence, write the category WITHOUT the curly brackets.'),
     );
   }
 
@@ -175,27 +179,6 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Button to save fortune
-      // floatingActionButton: SizedBox(
-      //   width: 200,
-      //   height: 30,
-      //   child: FloatingActionButton(
-      //     // shape: ShapeBorder.lerp(CircleBorder(), StadiumBorder(), 0.5),
-      //     onPressed: !_isGenerating ? saveFortune : () {},
-      //     splashColor: Theme.of(context).primaryColor,
-      //     child: Center(
-      //       child: Text(
-      //         'Save Fortune',
-      //         style: TextStyle(
-      //           fontSize: 18,
-      //           color: Theme.of(context).colorScheme.onPrimary,
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ),
-
-      // Main content
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -212,77 +195,78 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // **************************************
-              // The genie who tells a fortune
+              // Image avatar of the genie
               // **************************************
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  //Left Hand
-                  Positioned(
-                    left: 200,
-                    child: Image.asset(
-                      'assets/images/ArmLeft.jpg',
-                      height: 300,
-                      width: 300,
-                      fit: BoxFit.contain,
-                    ),
+              Animate(
+                effects: const [
+                  ScaleEffect(
+                    curve: Curves.easeOut,
+                    begin: Offset(0.75, 0.75),
+                    end: Offset(1, 1),
                   ),
-
-                  //Right Hand
-                  Positioned(
-                    right: 200,
-                    child: Image.asset(
-                      'assets/images/ArmRight.jpg',
-                      height: 300,
-                      width: 300,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  //Hold Ball Gif
-                  SizedBox(
-                    width: 200,
-                    height: 200,
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/SpinningBall.gif',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
+                  FadeEffect(),
                 ],
+                child: SizedBox(
+                  width: 200,
+                  height: 200,
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/SpinningBall.gif',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               // *****************************************
               // Text Bubble
               // *****************************************
               if (!_isGenerating && generatedText != null)
-                TextBubble(
-                  text: !_hasErrorOccurred
-                      ? getformattedText(generatedText!)
-                      : 'There was an error generating a fortune. Please try again.',
-                  textColor: Theme.of(context).colorScheme.onSurface,
-                  color: Theme.of(context).colorScheme.surface,
-                  fontSize: 16,
+                Animate(
+                  effects: const [
+                    MoveEffect(
+                      begin: Offset(0, 10),
+                      end: Offset(0, -10),
+                      curve: Curves.easeInOut,
+                      duration: Duration(milliseconds: 600),
+                    ),
+                    FadeEffect(
+                      begin: 0,
+                      end: 1,
+                      duration: Duration(milliseconds: 500),
+                    ),
+                  ],
+                  child: TextBubble(
+                    text: !_hasErrorOccurred
+                        ? getFormattedText(generatedText!)
+                        : 'There was an error generating a fortune. Please try again.',
+                    textColor: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 18,
+                    icon: getCategoryIcon(_randomCategory),
+                    category: _randomCategory,
+                  ),
                 )
               else if (_isGenerating)
-                CircularProgressIndicator(
-                    color: Theme.of(context).colorScheme.surface),
+                const SpinKitThreeBounce(
+                  color: Colors.white,
+                ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               // ***************
               // Tap Button
               // ***************
               ElevatedButton(
                 child: Text(
-                  generatedText == null
-                      ? 'Tell me a fortune.'
-                      : 'Tell me another fortune.',
+                  'Tell me a fortune.',
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.surface,
-                      fontSize: 16),
+                    color: Theme.of(context).colorScheme.surface,
+                    fontSize: 16,
+                    height: 4,
+                  ),
                 ),
                 onPressed: !_isGenerating
                     ? () {
@@ -296,34 +280,28 @@ class _ScreenHomeState extends ConsumerState<ScreenHome> {
                   shadowColor: Colors.black.withOpacity(0.8),
                 ),
               ),
-
-              if (!_isGenerating && generatedText != null) SizedBox(height: 50),
-
-              // ************************
-              // Save fortune to profile
-              // ************************
-              if (!_isGenerating && generatedText != null)
-                SizedBox(
-                  width: 180,
-                  height: 40,
-                  child: FloatingActionButton(
-                    onPressed: !_isGenerating ? saveFortune : () {},
-                    splashColor: Theme.of(context).primaryColor,
-                    child: Center(
-                      child: Text(
-                        'Save Fortune',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
             ],
           ),
         ),
       ),
+
+      // ************************
+      // Save fortune to profile
+      // ************************
+      floatingActionButton: (generatedText == null || _isGenerating)
+          ? null
+          : Animate(
+              effects: [
+                FadeEffect(),
+              ],
+              child: FloatingActionButton(
+                onPressed: !_isGenerating ? saveFortune : () {},
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: const Icon(Icons.save),
+                shape: const CircleBorder(),
+              ),
+            ),
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.noAnimation,
     );
   }
 }

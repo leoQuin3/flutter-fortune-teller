@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 // *******************************************
-// Stores fortunes from and to database.
+// Manage fortunes and stats of user profile
 // *******************************************
 class ProviderFortunes extends ChangeNotifier {
   ProviderFortunes(this.ref);
@@ -29,6 +29,7 @@ class ProviderFortunes extends ChangeNotifier {
       .toList();
   int get savedFortunesCount => _savedFortunesCount;
   int get receivedFortunesCount => _receivedFortunesCount;
+  Categories get currentCategoryFilter => _currentCategoryFilter;
 
   // Set filter to show certain fortunes
   void setFilter(Categories category) {
@@ -36,7 +37,7 @@ class ProviderFortunes extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Set filter
+  // Enable/Disable filter
   void enableFilter(bool isOn) {
     isFiltered = isOn;
     notifyListeners();
@@ -47,9 +48,26 @@ class ProviderFortunes extends ChangeNotifier {
     String id = Uuid().v4().toString();
     Fortune newFortune = Fortune(text: text, category: category, id: id);
     _fortuneList.add(newFortune);
+
     saveFortunesToProfile();
     notifyListeners();
+  }
 
+  void addFortuneAtIndex(Fortune newFortune, int index) {
+    List<Fortune> fortuneListCopy = List.of(_fortuneList);
+
+    if (index >= fortuneListCopy.length) {
+      fortuneListCopy.add(newFortune);
+    }
+    else if (index <= fortuneListCopy.length) {
+      fortuneListCopy.insert(0, newFortune);
+    }
+    else {
+      fortuneListCopy.insert(index, newFortune);
+    }
+
+    _fortuneList = fortuneListCopy;
+    
     saveFortunesToProfile();
     notifyListeners();
   }
@@ -72,9 +90,12 @@ class ProviderFortunes extends ChangeNotifier {
     final userProfile = ref.read(providerUserProfile);
     final userId = userProfile.uid;
 
+    // Copy list
+    List<Fortune> fortuneListCopy = List.from(_fortuneList);
+
     // Save each fortune into database
     try {
-      for (var fortune in _fortuneList) {
+      for (var fortune in fortuneListCopy) {
         Map<String, dynamic> fortuneDoc = {
           'id': fortune.id,
           'text': fortune.text,
@@ -89,19 +110,20 @@ class ProviderFortunes extends ChangeNotifier {
             .set(fortuneDoc);
       }
       // Return true if successful
-      _savedFortunesCount = _fortuneList.length;
+      _savedFortunesCount = fortuneListCopy.length;
       notifyListeners();
       return true;
 
       // Return false if unsuccessful
     } catch (err) {
       print('Failed to save fortunes: $err');
+      notifyListeners();
       return false;
     }
   }
 
   // Save user stats to profile
-  Future<bool> saveStatesToProfile() async {
+  Future<bool> saveStatsToProfile() async {
     final userProfile = ref.read(providerUserProfile);
     final userId = userProfile.uid;
 
@@ -117,7 +139,6 @@ class ProviderFortunes extends ChangeNotifier {
   }
 
   // Fetch fortunes from profile
-  // FIXME: Fortunes are not fetched until refreshed
   Future<bool> fetchFortunesFromProfile() async {
     final userProfile = ref.read(providerUserProfile);
     final userId = userProfile.uid;
@@ -143,7 +164,8 @@ class ProviderFortunes extends ChangeNotifier {
         );
         _fortuneList.add(fortune);
       }
-      _savedFortunesCount = _fortuneList.length; // TODO: probably make another method to handle fetching stats.
+      _savedFortunesCount = _fortuneList
+          .length; // TODO: probably make another method to handle fetching stats.
       notifyListeners();
       return true;
 

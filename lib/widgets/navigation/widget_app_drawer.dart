@@ -14,8 +14,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
 // App relative file imports
-import '../../widgets/navigation/widget_primary_scaffold.dart';
-import '../../screens/settings/screen_profile_edit.dart';
 import '../../providers/provider_user_profile.dart';
 import '../../screens/settings/screen_settings.dart';
 import '../general/widget_profile_avatar.dart';
@@ -34,6 +32,7 @@ class WidgetAppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Theme.of(context).colorScheme.onSurface,
       child: Consumer(
         builder: (BuildContext context, WidgetRef ref, Widget? child) {
           final ProviderAuth _providerAuth = ref.watch(providerAuth);
@@ -43,6 +42,7 @@ class WidgetAppDrawer extends StatelessWidget {
           return Column(
             children: <Widget>[
               AppBar(
+                backgroundColor: Theme.of(context).colorScheme.onSurface,
                 title: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
@@ -52,34 +52,43 @@ class WidgetAppDrawer extends StatelessWidget {
                       userWholeName: _providerUserProfile.wholeName,
                     ),
                     const SizedBox(width: 10),
-                    Text('Welcome ${_providerUserProfile.firstName}')
+                    Text(
+                      'Welcome ${_providerUserProfile.firstName}',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                    )
                   ],
                 ),
                 // ,
                 automaticallyImplyLeading: false,
               ),
               ListTile(
-                leading: Icon(Icons.spatial_audio_off),
-                title: Text('Voice Settings'),
-                onTap: () {
-                  // Close the drawer
-                  Navigator.of(context).pop();
-                  context.push(ScreenSettings.routeName, extra: false);
-                },
-              ),
-              ListTile(
                 leading: Icon(Icons.person),
                 title: Text('Profile'),
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                iconColor: Theme.of(context).colorScheme.onPrimary,
                 onTap: () {
                   // Close the drawer
                   Navigator.of(context).pop();
                   context.push(ProfilePage.routeName); // Go to Profile Page
                 },
               ),
-              Divider(),
+              ListTile(
+                leading: Icon(Icons.spatial_audio_off),
+                title: Text('Voice Settings'),
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                iconColor: Theme.of(context).colorScheme.onPrimary,
+                onTap: () {
+                  // Close the drawer
+                  Navigator.of(context).pop();
+                  context.push(ScreenSettings.routeName, extra: false);
+                },
+              ),
+              Divider(color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.25)),
               ListTile(
                 leading: Icon(Icons.exit_to_app),
                 title: Text('Logout'),
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                iconColor: Theme.of(context).colorScheme.onPrimary,
                 onTap: () {
                   _providerAuth.clearAuthedUserDetailsAndSignout();
                 },

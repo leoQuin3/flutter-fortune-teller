@@ -11,17 +11,18 @@
 // Dart imports
 
 // Flutter external package imports
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:csc322_starter_app/main.dart';
+import 'package:csc322_starter_app/screens/general/categories_screen.dart';
+import 'package:csc322_starter_app/widgets/general/categories.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // App relative file imports
-import '../../screens/general/screen_alternate.dart';
+import '../../screens/general/screen_fortune_list.dart';
 import '../../screens/general/screen_home.dart';
-import 'widget_primary_app_bar.dart';
+import 'package:go_router/go_router.dart';
 import 'widget_app_drawer.dart';
-import '../../main.dart';
 
 // Custom file imports
 import 'package:csc322_starter_app/widgets/general/bottom_nav_bar.dart';
@@ -135,7 +136,7 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
       return ScreenHome();
     // Show saved fortunes
     else if (currentTabIndex == BottomNavSelection.ALTERNATE_SCREEN.index)
-      return ScreenAlternate();
+      return ScreenFortuneList();
     else
       return ScreenHome();
   }
@@ -146,9 +147,11 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
   ////////////////////////////////////////////////////////////////
   Widget _getAppBarTitle(int currentTabIndex) {
     if (currentTabIndex == BottomNavSelection.HOME_SCREEN.index)
-      return Text("Home");
+      return Text("Home",
+          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary));
     else
-      return Text("Saved Fortunes");
+      return Text("Saved Fortunes",
+          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary));
   }
 
   ////////////////////////////////////////////////////////////////
@@ -156,15 +159,49 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
   // actions to display in the app bar (right side).
   ////////////////////////////////////////////////////////////////
   List<Widget>? _getAppBarActions(int currentTabIndex) {
+    // Get fortunes provider
+    var fortunesProvider = ref.watch(providerFortunes);
+
     // Initialize the actions
-    List<Widget> actions = [];
+    List<List<Widget>> actions = [
+      [
+        IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.settings),
+        ),
+      ],
+      [
+        Stack(
+          children: [
+            IconButton(
+              onPressed: () {
+                context.push(CategoriesScreen.routeName);
+              },
+              icon: Icon(
+                Icons.filter_list,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+            if (fortunesProvider.isFiltered)
+              Positioned(
+                child: Icon(
+                  getCategoryIcon(fortunesProvider.currentCategoryFilter),
+                  size: 16,
+                ),
+                bottom: 0,
+                right: 4,
+              ),
+          ],
+        ),
+      ]
+    ];
 
     // If not chat tab, return null (no actions)
-    return actions.isEmpty ? null : actions;
+    return actions.isEmpty ? null : actions[currentTabIndex];
   }
 
   ////////////////////////////////////////////////////////////////
-  // Primary Flutter method overriden which describes the layout
+  // Primary Flutter method overridden which describes the layout
   // and bindings for this widget.
   ////////////////////////////////////////////////////////////////
   @override
@@ -174,10 +211,13 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
 
     // Return the scaffold
     return Scaffold(
-      appBar: WidgetPrimaryAppBar(
-        // Add a plus icon followed by the 3-dots vertical icon on the right
-        actionButtons: _getAppBarActions(currentTabIndex),
+      appBar: AppBar(
+        actions: _getAppBarActions(currentTabIndex),
         title: _getAppBarTitle(currentTabIndex),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        iconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
       ),
 
       // *************************
@@ -189,7 +229,7 @@ class _WidgetPrimaryScaffoldState extends ConsumerState<WidgetPrimaryScaffold> {
       // Main content (Home screen, Alternate screen)
       // ********************************************
       body: _getScreenToDisplay(currentTabIndex),
-      
+
       // **************************************
       // Bottom navigator bar
       // **************************************

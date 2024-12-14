@@ -26,7 +26,9 @@ class BottomNavBar extends StatelessWidget {
           label: 'Saved Fortunes',
         ),
       ],
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.onSurface,
+      unselectedItemColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+      selectedItemColor: Theme.of(context).colorScheme.primary,
     );
   }
 }

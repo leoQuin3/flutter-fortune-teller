@@ -13,16 +13,17 @@ class CategoriesScreen extends ConsumerStatefulWidget {
 }
 
 class _CategoriesState extends ConsumerState<CategoriesScreen> {
-  final Map<int, bool> _hoverStates = {};
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Categories',
+        title: Text('Filter By Category',
             style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
       ),
       body: Container(
         alignment: Alignment.center,
@@ -44,8 +45,7 @@ class _CategoriesState extends ConsumerState<CategoriesScreen> {
           itemBuilder: (context, index) {
             if (index == Categories.values.length) {
               return _lastGridItem();
-            }
-            else {
+            } else {
               return _buildCategoryGridItem(index);
             }
           },
@@ -99,38 +99,38 @@ class _CategoriesState extends ConsumerState<CategoriesScreen> {
   }
 
   Widget _lastGridItem() => GestureDetector(
-      // Filter fortunes by category
-      onTap: () {
-        var fortuneProvider = ref.read(providerFortunes);
-        fortuneProvider.enableFilter(false);
-        Navigator.of(context).pop();
-      },
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            colors: [
-              Theme.of(context).colorScheme.onSurface.withAlpha(200),
-              Theme.of(context).colorScheme.onSurface,
-            ],
-            radius: 1,
-          ),
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Icon(
-            //   Icons.auto_awesome,
-            //   color: Colors.white,
-            // ),
-            // SizedBox(width: 14),
-            Text(
-              'All',
-              style: TextStyle(fontSize: 18, color: Colors.white),
+        // Filter fortunes by category
+        onTap: () {
+          var fortuneProvider = ref.read(providerFortunes);
+          fortuneProvider.enableFilter(false);
+          Navigator.of(context).pop();
+        },
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              colors: [
+                Theme.of(context).colorScheme.onSurface.withAlpha(200),
+                Theme.of(context).colorScheme.onSurface,
+              ],
+              radius: 1,
             ),
-          ],
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Icon(
+              //   Icons.auto_awesome,
+              //   color: Colors.white,
+              // ),
+              // SizedBox(width: 14),
+              Text(
+                'All',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
 }

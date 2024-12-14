@@ -13,20 +13,26 @@ class FortuneListItem extends ListTile {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        '$text',
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimary,
+    return Container(
+      decoration: BoxDecoration(
+        color: getCategoryColor(category),
+        borderRadius: BorderRadius.circular(8)
+      ),
+      child: ListTile(
+        title: Text(
+          '$text',
+          style: TextStyle(
+            color: Colors.white,
+          ),
         ),
+        leading: Icon(
+          getCategoryIcon(category),
+          color: Colors.white,
+          size: 30,
+        ),
+        contentPadding: EdgeInsets.all(8),
+        shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(6)),
       ),
-      leading: Icon(
-        getCategoryIcon(category),
-        color: Theme.of(context).colorScheme.onPrimary,
-        size: 30,
-      ),
-      tileColor: getCategoryColor(category),
-      shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(6)),
     );
   }
 }
